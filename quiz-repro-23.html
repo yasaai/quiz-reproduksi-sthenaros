@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulator CBT Ligamorpha 21</title>
+  <style>
+    :root {
+     --bg1: #fffdf7;
+  --bg2: #fff7ed;
+
+  --card: rgba(255, 255, 255, 0.92);
+
+  --text: #1f2937;
+  --muted: #a16207;
+
+  --primary: #fbbf24;   /* gold */
+  --primary-2: #f59e0b; /* deep gold */
+
+  --secondary: #f97316; /* orange */
+  --secondary-2: #ea580c;
+
+  --back-1: #9a3412;
+  --back-2: #7c2d12;
+
+  --success-bg: #fef9c3;
+  --success-border: #eab308;
+
+  --wrong-bg: #fee2e2;
+  --wrong-border: #ef4444;
+
+  --explain-bg: #fff7ed;
+
+  --shadow: 0 20px 45px rgba(0, 0, 0, 0.12);  
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #fde68a 0%, transparent 28%),
+        radial-gradient(circle at top right, #bfdbfe 0%, transparent 30%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 24px auto;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+    }
+
+    .home {
+      text-align: center;
+      padding: 90px 24px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #f97316, #fb7185);
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 38px;
+      line-height: 1.2;
+    }
+
+    h2, h3 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 18px;
+      margin-bottom: 28px;
+    }
+
+    .go-btn,
+    .next-btn,
+    .restart-btn,
+    .back-btn {
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 14px;
+      padding: 14px 26px;
+      font-size: 18px;
+      font-weight: 700;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .go-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 12px 28px rgba(249, 115, 22, 0.35);
+    }
+
+    .next-btn,
+    .restart-btn {
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-2));
+      box-shadow: 0 12px 28px rgba(14, 165, 233, 0.28);
+    }
+
+    .back-btn {
+      background: linear-gradient(135deg, var(--back-1), var(--back-2));
+      box-shadow: 0 12px 28px rgba(71, 85, 105, 0.28);
+    }
+
+    .go-btn:hover,
+    .next-btn:hover,
+    .restart-btn:hover,
+    .back-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .meta-chip {
+      background: linear-gradient(135deg, #fff7ed, #ffedd5);
+      border: 1px solid #fdba74;
+      padding: 8px 14px;
+      border-radius: 999px;
+    }
+
+    #question {
+      font-size: 24px;
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .options label {
+      display: block;
+      padding: 16px 18px;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      cursor: pointer;
+      background: white;
+      transition: all 0.18s ease;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .options label:hover {
+      border-color: #7dd3fc;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(14, 165, 233, 0.1);
+    }
+
+    .options input {
+      margin-right: 10px;
+      transform: scale(1.1);
+      accent-color: var(--secondary);
+    }
+
+    .correct {
+      background: var(--success-bg) !important;
+      border-color: var(--success-border) !important;
+    }
+
+    .wrong {
+      background: var(--wrong-bg) !important;
+      border-color: var(--wrong-border) !important;
+    }
+
+    .explain {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: var(--explain-bg);
+      border-left: 6px solid #f59e0b;
+      line-height: 1.6;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .result {
+      text-align: center;
+      padding: 80px 24px;
+    }
+
+    .result-box {
+      background: linear-gradient(135deg, #eff6ff, #fdf2f8);
+      border: 1px solid #c4b5fd;
+      border-radius: 22px;
+      padding: 28px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .score-number {
+      font-size: 44px;
+      font-weight: 800;
+      margin: 14px 0;
+      color: #7c3aed;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 14px;
+      }
+
+      .container {
+        padding: 20px;
+        border-radius: 20px;
+      }
+
+      .home {
+        padding: 60px 14px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      #question {
+        font-size: 20px;
+      }
+
+      .go-btn,
+      .next-btn,
+      .restart-btn,
+      .back-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="home" class="container home">
+    <div class="badge">Simulator Quiz</div>
+    <h1>Quiz Reproduksi Sthenaros</h1>
+    <div class="subtitle">2023· Reproductive System</div>
+    <button class="go-btn" type="button" id="startBtn">START Quiz</button>
+  </div>
+
+  <div id="quizContainer" class="container" style="display:none;">
+    <div class="meta">
+      <div id="meta" class="meta-chip"></div>
+      <div id="scoreInfo" class="meta-chip"></div>
+      <div id="timerInfo" class="meta-chip"></div>
+    </div>
+
+    <h3 id="question"></h3>
+    <div id="options" class="options"></div>
+    <div id="explain" class="explain" style="display:none;"></div>
+
+    <div class="actions">
+      <button class="back-btn" type="button" id="backBtn">Back</button>
+      <button class="next-btn" type="button" id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+  {
+    q: "1. Manakah pernyataan di bawah ini yang benar untuk folikel sekunder?",
+    options: [
+      "Disusun oleh oosit primer, dibungkus oleh sel epitel berlapis kubus dan ada ruangan di antaranya yang diisi dengan cairan folikuler",
+      "Disusun oleh oosit sekunder, dibungkus oleh sel epitel berlapis kubus dan ada ruangan di antaranya yang diisi dengan cairan folikuler",
+      "Disusun oleh oosit primer, dibungkus oleh sel epitel berlapis kubus",
+      "Disusun oleh oosit primer, dibungkus oleh sel epitel selapis kubus",
+      "Disusun oleh oosit sekunder, dibungkus oleh sel epitel berlapis kubus"
+    ],
+    answer: 0,
+    explain: "A — Folikel sekunder (preantral) mengandung oosit PRIMER (masih dalam meiosis I yang tertahan). Sel granulosa berproliferasi menjadi berlapis (stratified cuboidal), dan mulai terbentuk ruang antar sel yang terisi cairan folikuler (cikal bakal antrum). Oosit menjadi sekunder baru setelah ovulasi saat meiosis I selesai."},
+  {
+    q: "2. Pernyataan berikut yang manakah yang benar mengenai kontrasepsi perimenopause?",
+    options: [
+      "IUD merupakan metode kontrasepsi yang dianjurkan setelah usia 45 tahun",
+      "Pada wanita di atas 50 tahun kontrasepsi tidak diperlukan lagi setelah satu tahun amenore",
+      "Masuk akal untuk berhenti menggunakan kontrasepsi setelah usia 45 tahun, terlepas dari status menopause",
+      "Kontrasepsi hormonal kombinasi dikontraindikasikan pada wanita berusia lebih dari 45 tahun",
+      "Evaluasi FSH diindikasikan pada wanita yang menggunakan kontrasepsi hormonal kombinasi untuk menilai status menopause"
+    ],
+    answer: 1,
+    explain: "B — WHO dan panduan internasional menyatakan: wanita >50 tahun dapat menghentikan kontrasepsi setelah 12 bulan amenore (karena kemungkinan ovulasi spontan sangat rendah). A Salah — IUD tidak secara spesifik 'dianjurkan' post-45; semua metode dievaluasi case-by-case. C Salah — status menopause tetap relevan; jangan stop sembarangan. D Salah — kontrasepsi hormonal kombinasi bukan kontraindikasi absolut di usia >45, tetapi perlu seleksi ketat (risiko kardiovaskular). E Salah — pengukuran FSH tidak reliabel pada pengguna kontrasepsi hormonal kombinasi karena FSH disupresi."  },
+  {
+    q: "3. Pernyataan yang benar dari cara menghitung estimasi tanggal persalinan (EDD) berdasarkan haid terakhir (LMP) - Naegele's Rule?",
+    options: [
+      "Menambahkan 7 hari ke tanggal LMP (dan mengurangi 3 bulan)",
+      "Mengurangkan 7 hari dari tanggal LMP",
+      "Menambahkan 7 bulan ke tanggal LMP",
+      "Mengurangkan 7 bulan ke tanggal LMP",
+      "Menambahkan 3 hari ke tanggal LMP"
+    ],
+    answer: 0,
+    explain: "A — Naegele's Rule: EDD = LMP + 7 hari, lalu kurangi 3 bulan (atau tambah 9 bulan). Contoh: LMP 1 Januari → EDD = 8 Oktober. Pilihan lain tidak sesuai rumus. Rumus ini mengasumsikan siklus 28 hari."
+  },
+  {
+    q: "4. Dosis rekomendasi konsumsi asam folat untuk ibu yang sebelumnya mengalami defisiensi folat atau memiliki anak dengan neural tube defect (NTD) pada kehamilan pertamanya?",
+    options: ["100 mikrogram", "200 mikrogram", "400 mikrogram", "1 miligram", "4 miligram"],
+    answer: 4,
+    explain: "E — Dosis standar pencegahan NTD = 400 mcg/hari (wanita tanpa riwayat). Dosis tinggi = 4mg/hari (4.000 mcg) direkomendasikan untuk wanita dengan riwayat kehamilan sebelumnya yangmengalami NTD atau defisiensi folat berat — sesuai panduan RCOG, WHO, dan ACOG. Dosis ini dimulai minimal 1 bulan sebelum konsepsi dan dilanjutkan sampai trimester pertama."  },
+  {
+    q: "5. Secara fisiologis pada fase luteal, perubahan folikel menjadi struktur corpus luteum berhubungan dengan pernyataan berikut:",
+    options: [
+      "Sel granulosa dalam corpus luteum membentuk retikulum endoplasma yang progresif yang memproduksi hormon progesteron dan estrogen dalam jumlah banyak, dan jumlah hormon progesteron lebih tinggi dibanding estrogen",
+      "Terjadi pertumbuhan corpus luteum menjadi folikel antrum yang dominan mensekresikan hormon estrogen di bawah pengaruh hormon FSH yang disekresikan oleh hipofisis anterior",
+      "Perubahan sel-sel granulosa dan theca interna menjadi sel-sel lutein sangat bergantung pada GnRH yang disekresikan oleh kelenjar pituitary anterior",
+      "Progesteron yang disekresikan oleh corpus luteum selama fase luteal memiliki feedback yang kuat terhadap kelenjar pituitary anterior dalam mempertahankan tingkat sekresi LH yang tinggi",
+      "Dalam tahap awal fase ini, terhentinya sekresi progesteron oleh corpus luteum menimbulkan penurunan jumlah FSH"
+    ],
+    answer: 0,
+    explain: "Setelah ovulasi, sel granulosa dan theca interna mengalami luteinisasi (dirangsang LH). Sel lutein granulosa mengembangkan SER (smooth endoplasmic reticulum) yang luas — organela utama sintesis steroid. CL menghasilkan progesteron >> estrogen. B Salah — CL bukan folikel antrum, dan tidak diatur FSH. C Salah — luteinisasi dirangsang LH, bukan GnRH langsung. D Salah — progesteron dari CL justru memberikan feedback NEGATIF terhadap LH/FSH. E Salah — yang menandai awal fase luteal ukan penghentian progesteron."},
+  {
+    q: "6. Seorang pria yang mengalami pubertas akan mengalami perubahan suara, pertumbuhan rambut di tempat-tempat tertentu, dan mimpi basah. Khusus untuk pertumbuhan rambut-rambut tersebut dikendalikan oleh hormon?",
+    options: ["Androgen", "Testosteron", "FSH", "LH", "GnRH"],
+    answer: 1,
+    explain: "Pertumbuhan rambut pubis, aksila, wajah (dan semua rambut seksual sekunder pria) dikendalikan terutama oleh TESTOSTERON (dan konversinya ke DHT via 5-alpha reductase). Androgen (A) adalah kategori yang lebih luas — testosteron adalah anggota androgen yang spesifik benar. Jawaban B lebih spesifik dan tepat. FSH (C) berperan dalam spermatogenesis. LH (D) merangsang sel Leydig untuk memproduksi testosteron. GnRH (E) merangsang hipofisis" },
+  {
+    q: "7. Mana pernyataan yang benar mengenai seminal glands (vesikula seminalis) di bawah ini?",
+    options: [
+      "Mendapat vaskularisasi dari inferior vesical dan middle rectal arteries",
+      "Aliran limfenya menuju ke external iliac lymph nodes",
+      "Bermuara pada urethrae pars prostatica",
+      "Berada antara permukaan superior urinary bladder dan rectum",
+      "Posisi berada pada bagian medial dari ductus deferens"
+    ],
+    answer: 0,
+    explain: "Vesikula seminalis mendapat suplai darah dari inferior vesical artery (cabang internal iliac) dan middle rectal artery (cabang internal iliac). D Salah — vesikula seminalis terletak posterior dari bladder, bukan superior. E Salah — posisinya lateral terhadap ductus deferens. B Salah — aliran limfe ke internal iliac nodes. C Salah — duktus ejakulatorius (gabungan ductus deferens + ductus vesiculae seminalis) yang bermuara ke uretra pars prostatica."  },
+  {
+    q: "8. Pada periode apa keluhan hot flush paling sering ditemukan?",
+    options: ["Fase reproduksi", "Postmenopause", "Perimenopause", "Premenopause", "Premenarche"],
+    answer: 2,
+    explain: "Hot flush (hot flash) adalah gejala vasomotor yang PALING sering dan khas pada periode PERIMENOPAUSE — yaitu masa transisi menuju menopause dengan fluktuasi kadar estrogen yang tidak stabil. Meskipun bisa berlanjut ke postmenopause, insidensi tertinggi dan keluhan paling intens terjadi saat perimenopause. Pada postmenopause, gejala bisa berkurang seiring waktu."  },
+  {
+    q: "9. Seminal glands (vesikula seminalis) mendapat vaskularisasi dari arteri?",
+    options: [
+      "Inferior vesical, middle rectal",
+      "Middle vesical, middle rectal",
+      "Inferior vesical, superior rectal",
+      "Superior rectal, superior vesical",
+      "Superior rectal, middle rectal"
+    ],
+    answer: 0,
+    explain: "Vesikula seminalis divaskularisasi oleh: (1) Inferior vesical artery — cabang dari internal iliac artery; dan (2) Middle rectal artery — juga cabang dari internal iliac artery. Kombinasi ini konsisten di literatur anatomi klinis (Gray's Anatomy, Moore's Clinically Oriented Anatomy)." },
+  {
+    q: "10. Vaskularisasi untuk scrotum bagian posterior adalah cabang dari:",
+    options: [
+      "Dorsal artery of penis",
+      "External pudendal artery",
+      "Deep artery of penis",
+      "Internal pudendal artery",
+      "Internal iliac artery"
+    ],
+    answer: 3,
+    explain: "Skrotum posterior divaskularisasi oleh posterior scrotal arteries — cabang dari perineal artery, yang merupakan cabang dari INTERNAL PUDENDAL ARTERY. Skrotum anterior divaskularisasi oleh anterior scrotal arteries dari external pudendal artery. Perbedaan suplai anterior vs posterior ini penting secara klinis dan embriologis"  },
+  {
+    q: "11. Pernyataan yang benar mengenai perineum, kecuali:",
+    options: [
+      "Perineum berbentuk seperti berlian",
+      "Ligamen sakrotuberosa terletak di bagian lateral",
+      "Beberapa dokter kandungan menggunakan istilah perineum yaitu area antara vagina dan anus",
+      "Terletak di bawah lubang panggul bagian bawah",
+      "Rami pubis dan iskial bagian bawah merupakan batas anterolateral"
+    ],
+    answer: 1,
+    explain: "Ligamentum sakrotuberale (sacrotuberous ligament) terletak di bagian POSTERIOR-LATERAL perineum, bukan di bagian lateral saja. Lebih tepatnya, ligamen ini membentuk batas POSTERIOR-LATERAL dari perineum (dari sacrum ke tuberositas iskii). Semua pernyataan lain benar: perineum memang berbentuk diamond/belah ketupat, IUO menggunakan istilah tersebut untuk area antara vagina-anus, terletak di bawah apertura pelvis inferior, dan batas anterolateralnya adalah ramus ischiopubic." },
+  {
+    q: "12. Bila terjadi perdarahan segera setelah plasenta lahir, tindakan pertama yang dilakukan adalah:",
+    options: [
+      "Masase uterus",
+      "Menyiapkan transportasi untuk rujukan",
+      "Lihat kembali plasenta untuk memastikan plasenta lahir lengkap",
+      "Meminta pertolongan",
+      "Memasang infus"
+    ],
+    answer: 0,
+    explain: "Perdarahan post-partum primer (PPH) segera setelah lahirnya plasenta — penyebab paling sering adalah ATONIA UTERI. Tindakan PERTAMA dan paling cepat adalah MASASE UTERUS (uterine massage) untuk merangsang kontraksi miometrium dan menghentikan perdarahan. Algoritma manajemen PPH: masase uterus → uterotonika (oksitosin) → evaluasi sebab → jika perlu, rujuk. Memasang infus penting tapi urutan kedua." },
+  {
+    q: "13. Yang dimaksud dengan breech presentation atau position, pada fundus berada?",
+    options: ["Bokong", "Kepala", "Siku", "Panggul", "Kaki"],
+    answer: 1,
+    explain: " BREECH PRESENTATION = presentasi bokong → artinya bagian terendah (yang masuk panggul) adalah BOKONG. Maka di fundus (atas) terdapat KEPALA janin. Soal bertanya apa yang ada di FUNDUS pada letak sungsang — jawabannya kepala (B). Jangan keliru dengan 'presentasinya apa' (bokong) vs 'di fundus ada apa' (kepala)." },
+  {
+    q: "14. Vaskularisasi dari bagian posterior penis merupakan cabang dari arteri:",
+    options: [
+      "Deep artery of penis",
+      "Internal pudendal artery",
+      "External pudendal artery",
+      "Deep inguinal artery",
+      "Superficial inguinal artery"
+    ],
+    answer: 1,
+    explain: "Vaskularisasi penis (termasuk bagian posterior) berasal dari cabang-cabang INTERNAL PUDENDAL ARTERY: dorsal artery of penis, deep artery of penis (a. profunda penis), dan bulbourethral artery. Semuanya merupakan cabang terminal dari internal pudendal artery. External pudendal (C) hanya mensuplai kulit anterior skrotum dan regio inguinal, bukan penis bagian dalam/posterior." },
+  {
+    q: "15. Yang dimaksud dengan Chadwick Sign adalah:",
+    options: [
+      "Perubahan warna kuku selama kehamilan",
+      "Perubahan warna kulit selama kehamilan",
+      "Perubahan warna rambut selama kehamilan",
+      "Perubahan warna bola mata selama kehamilan",
+      "Perubahan warna mukosa vagina selama kehamilan"
+    ],
+    answer: 4,
+    explain: "Chadwick Sign = perubahan warna kebiruan/keunguan pada MUKOSA VAGINA dan serviks akibat peningkatan vaskularisasi dan kongesti vena selama kehamilan (mulai terlihat ~6-8 minggu). Ini adalah tanda presumtif kehamilan. Tanda terkait lainnya: Goodell's sign (pelunakan serviks), Hegar's sign (pelunakan isthmus uteri)." },
+  {
+    q: "16. Seorang wanita 26 tahun datang untuk pap smear. Agen fiksasi apa yang digunakan untuk mendapatkan apusan yang baik untuk evaluasi sitologi?",
+    options: ["Air drying", "Ethanol 95%", "Alcohol 40%", "Commercial hairspray", "Formalin-buffer 10%"],
+    answer: 1,
+    explain: "ETHANOL 95% adalah GOLD STANDARD fiksasi untuk sitologi konvensional (Pap smear). Alasan: (1) Fiksasi cepat mencegah artefak pengeringan; (2) Mempertahankan morfologi nukleus dan sitoplasma dengan baik; (3) Kompatibel dengan pewarnaan Papanicolaou. Air drying (A) justru menyebabkan artefak. Formalin 10% (E) untuk histopatologi/biopsi, bukan sitologi. Alcohol 40% (C) terlalu encer. Commercial hairspray (D) mengandung bahan tambahan yang bisa mengganggu."  },
+  {
+    q: "17. Kelainan-kelainan payudara berikut ini tidak memerlukan rujukan ke rumah sakit, adalah:",
+    options: [
+      "Nyeri payudara yang menetap pada wanita postmenopause",
+      "Nyeri payudara tanpa disertai adanya massa yang jelas",
+      "Jelas adanya benjolan baru yang muncul",
+      "Keluar cairan dari puting susu pada wanita di atas 50 tahun",
+      "Timbul abses payudara pada peradangan payudara yang tidak berhasil diatasi dengan pemberian antibiotika"
+    ],
+    answer: 1,
+    explain: "Nyeri payudara (mastalgia) tanpa massa yang teraba = mastalgia fungsional/siklik yang TIDAK memerlukan rujukan segera — dapat ditangani di layanan primer. Semua pilihan lain MEMERLUKAN rujukan: A (nyeri postmenopause — curiga keganasan), C (benjolan baru — perlu imaging/biopsi), D (nipple discharge pada >50 tahun — curiga kanker), E (abses tidak respons antibiotik — perlu insisi-drainase bedah)"  },
+  {
+    q: "18. Hormon seks steroid mencakup androgen, estrogen, dan progesteron. Perubahan androgen menjadi estrogen dipengaruhi oleh:",
+    options: ["Activin", "LH", "Inhibin", "FSH", "Aromatase"],
+    answer: 4,
+    explain: "Konversi androgen → estrogen dikatalisis oleh enzim AROMATASE (CYP19A1). Dalam ovarium: sel granulosa mengekspresikan aromatase (dirangsang FSH) untuk mengubah androgen (yang diproduksi sel teka atas stimulasi LH) menjadi estradiol — ini adalah Two-Cell Two-Gonadotropin theory. FSH merangsang ekspresi aromatase, tetapi enzim yang melakukan konversinya adalah aromatase itu sendiri."},
+  {
+    q: "19. Apa yang dimaksud dengan action line dalam partograf?",
+    options: [
+      "Garis yang menandakan kondisi darurat yang memerlukan intervensi segera",
+      "Garis yang memisahkan informasi tentang parturisi",
+      "Garis yang membatasi area konsultasi dokter dengan bidan",
+      "Garis yang menunjukkan batas antara persalinan normal dan persalinan yang memerlukan intervensi",
+      "Garis yang menunjukkan waktu konsultasi atau rujukan"
+    ],
+    answer: 3,
+    explain: " Partograf memiliki dua garis utama: (1) Alert line = garis waspada; (2) Action line = garis tindakan — terletak 4 jam di sebelah kanan alert line. Jika kemajuan persalinan (dilatasi serviks) mencapai atau melewati action line, diperlukan INTERVENSI (augmentasi, operasi, atau rujukan). Action line membatasi antara persalinan yang masih bisa ditatalaksana konservatif vs yang membutuhkan intervensi aktif." },
+  {
+    q: "20. Apa yang dimaksud dengan menopause?",
+    options: [
+      "Tidak menstruasi selama 1 bulan",
+      "Tidak menstruasi selama 12 bulan berturut-turut akibat berhentinya aktivitas ovarium",
+      "Tidak menstruasi selama 12 bulan berturut-turut",
+      "Tidak menstruasi setelah usia 16 tahun tanpa disertai munculnya tanda seksual sekunder",
+      "Tidak menstruasi selama 3 siklus atau 6 bulan"
+    ],
+    answer: 1,
+    explain: "Definisi resmi menopause (WHO, STRAW+10): amenore selama 12 bulan berturut-turut AKIBAT berhentinya fungsi ovarium (folikel habis). Perbedaan dengan C: pilihan C tidak menyebutkan penyebabnya (bisa karena hamil, penyakit, dll). D adalah definisi amenore primer. Rata-rata usia menopause alami: 51 tahun." },
+  {
+    q: "21. Perkembangan sel sperma dari spermatogonium menjadi spermatosit dirangsang oleh hormon yang dihasilkan oleh kelenjar hipofise yaitu:",
+    options: ["FSH", "Testosterone", "LH", "GnRH", "Androgen"],
+    answer: 0,
+    explain: "Spermatogenesis (dari spermatogonium → spermatosit → spermatid → spermatozoa) dirangsang oleh FSH. FSH bekerja pada sel Sertoli untuk mendukung lingkungan mikro tubulus seminiferus yang dibutuhkan spermatogenesis. LH (C) merangsang sel Leydig menghasilkan testosteron (yang juga mendukung spermatogenesis secara lokal). GnRH (D) dihasilkan hipotalamus, bukan hipofise. Catatan: GnRH merangsang hipofise, hipofise menghasilkan FSH dan LH." },
+  {
+    q: "22. Pada usia pubertas wanita mulai mengalami siklus bulanan sehubungan dengan hal berikut:",
+    options: [
+      "Dimulainya sekresi hormon dari kelenjar thyroid",
+      "Terjadinya mekanisme feedback positif antara kadar progesteron terhadap LH",
+      "Terbentuknya korpus luteum pada hari ke-7 sampai 14 siklus bulanan",
+      "FSH dan LH mulai disekresikan dari hipofisis anterior",
+      "Adanya inhibisi GnRH karena maturitas sistem limbik di hipotalamus"
+    ],
+    answer: 3,
+    explain: " Pubertas dimulai dengan maturasi aksis hipotalamus-hipofisis-gonad. Hipotalamus mulai melepas GnRH secara pulsatil → merangsang hipofisis anterior untuk mensekresikan FSH dan LH → ovarium teraktivasi → estrogen → siklus menstruasi dimulai. A Salah — tiroid tidak berperan langsung. B Salah — feedback positif progesteron terhadap LH tidak tepat (estrogen yang memicu LH surge). E Salah — sebaliknya, maturasi limbik melepas inhibisi GnRH (bukan inhibisi)." },
+  {
+    q: "23. Pernyataan-pernyataan ini adalah gambaran dari female pelvis:",
+    options: [
+      "Subpubic angle lebih sempit dari laki-laki",
+      "False pelvisnya lebih dalam dan vertikal dari laki-laki",
+      "Obturator foramen berbentuk oval sedangkan laki-laki bulat",
+      "Acetabulum lebih besar dari laki-laki",
+      "Pelvic outletnya lebih kecil dari laki-laki"
+    ],
+    answer: 2,
+    explain: " Perbedaan pelvis wanita vs pria: Wanita = obturator foramen OVAL; Pria = bulat/circular. Pilihan lain salah: A — subpubic angle wanita LEBIH LEBAR (>80-85°) dibanding pria (<70°). B — false pelvis wanita lebih dangkal dan lebih lebar. D — acetabulum wanita lebih KECIL (proporsional terhadap ukuran tubuh). E — pelvic outlet wanita lebih LEBAR." },
+  {
+    q: "24. Seorang wanita 52 tahun dengan benjolan payudara kanan, histopatologi karsinoma duktal invasif, IHK ER positif. Faktor genetik apa yang paling bertanggung jawab?",
+    options: ["PTEN", "TP53", "BRCA 2", "BRCA 1", "HER-2"],
+    answer: 2,
+    explain: " Karsinoma duktal invasif ER-positif pada wanita usia 52 tahun — BRCA2 lebih berkaitan dengan kanker payudara tipe luminal (ER+) dibanding BRCA1. BRCA1 lebih sering → triple-negative breast cancer (ER-, PR-, HER2-). BRCA2 → lebih sering ER+ dan terjadi pada usia lebih tua. TP53 (B) berkaitan dengan Li-Fraumeni syndrome. PTEN (A) berkaitan dengan Cowden syndrome. HER-2 adalah faktor prognostik, bukan mutasi germline utama."  },
+  {
+    q: "25. Pilihlah satu pernyataan tentang uterus ini yang benar:",
+    options: [
+      "Mendapat vaskularisasi dari uterine artery yang berjalan dekat dengan fundus",
+      "Dinding dari body uterus terdiri dari 3 lapisan yaitu perimetrium, mesometrium, dan endometrium",
+      "Uterus dibagi menjadi fundus, body, dan cervix",
+      "Memiliki dua surface yaitu vesical dan intestine surface",
+      "Tidak seluruh bagian fundus uterus diliputi oleh peritoneum"
+    ],
+    answer: 2,
+    explain: "Uterus secara anatomis dibagi menjadi: fundus, corpus (body), isthmus, dan cervix. Pernyataan C menyebutkan 3 bagian utama yang benar. A Salah — uterine artery berjalan dekat CERVIX (setinggi level internal os), bukan fundus; fundus disuplai cabang fundal. B Salah — lapisan dinding uterus adalah perimetrium, miometrium, dan endometrium (bukan mesometrium). D Salah — uterus memiliki vesical surface (anterior) dan intestinal/rectal surface (posterior). E Salah — fundus SELURUHNYA dilapisi peritoneum."  },
+  {
+    q: "26. Diaphragma pelvis dibentuk oleh otot-otot di bawah ini, kecuali:",
+    options: [
+      "Coccygeus muscles",
+      "Ischiococcygeus muscles",
+      "Puborectal muscles",
+      "Iliococcygeus muscles",
+      "Pubococcygeus muscles"
+    ],
+    answer: 1,
+    explain: " Diaphragma pelvis dibentuk oleh: (1) Levator ani (terdiri dari: pubococcygeus, puborectalis, iliococcygeus) + (2) Coccygeus muscle (= ischiococcygeus). Ischiococcygeus adalah nama LAIN dari coccygeus — bukan otot yang berbeda/terpisah. Jadi jika soal menyebutkan coccygeus (A) sudah benar, maka ischiococcygeus (B) bukan merupakan tambahan — ini PENGECOH. Secara klinis, diaphragma pelvis = levator ani + coccygeus."  },
+  {
+    q: "27. Seorang wanita 62 tahun dengan benjolan payudara kanan sejak 3 bulan, USG beberapa massa 1-1,5 cm. Histopatologi karsinoma duktal invasif. Gambaran mikroskopis apa yang spesifik untuk keganasan ini?",
+    options: ["Papillary pattern", "Single-file formation", "Cell cluster", "Tubular formation", "Cysts formation"],
+    answer: 3,
+    explain: "Tubular formation (tubular carcinoma / tubular pattern) adalah gambaran spesifik karsinoma duktal invasif — tampak sebagai struktur tubuler/glandular yang dilapisi satu lapis sel epitel atipik, tanpa lumen regular. B (single-file/indian file formation) lebih spesifik untuk invasive lobular carcinoma. Papillary pattern ada di papillary carcinoma. Cell clusters bisa jinak/ganas. Cysts pada fibrocystic change." },
+  {
+    q: "28. Berapa rata-rata durasi fase aktif persalinan pada nullipara?",
+    options: ["2.5 jam", "4.9 jam", "8 jam", "11 jam", "15 jam"],
+    answer: 1,
+    explain: "Berdasarkan data Friedman dan literatur obstetri modern: fase aktif persalinan pada nullipara rata-rata ±4.9 jam (rentang normal hingga 12 jam). Fase aktif = dari pembukaan 4 cm hingga pembukaan lengkap (10 cm). Pada multipara lebih cepat: rata-rata ±2.2-3.4 jam. Jawaban C (8 jam) dan D (11 jam) terlalu lama untuk rata-rata."},
+  {
+    q: "29. Kapan kepala bayi biasanya menetap atau engaged dalam panggul ibu?",
+    options: [
+      "Pada usia kehamilan 20 minggu",
+      "Pada usia kehamilan 28 minggu",
+      "Pada usia kehamilan 32 minggu",
+      "Pada usia kehamilan 36 minggu",
+      "Pada usia kehamilan 40 minggu"
+    ],
+    answer: 3,
+    explain: " Engagement kepala janin (kepala masuk panggul / lightening) pada nullipara biasanya terjadi sekitar usia kehamilan 36-38 minggu (tanda bahwa kepala sudah engaged = diameter biparietal melewati pelvic inlet). Pada multipara, engagement sering baru terjadi saat onset persalinan. Soal ini konteksnya umum/nullipara → 36 minggu."  },
+  {
+    q: "30. Manakah pernyataan di bawah ini yang benar tentang vas deferens?",
+    options: [
+      "Mukosa dilapisi oleh epitel kolumnar berlapis semu yang memiliki stereocilia, pada luarnya dilapisi oleh otot polos yang tebal dan jaringan ikat",
+      "Mukosa dilapisi oleh epitel kolumnar yang memiliki cilia, pada luarnya dilapisi oleh otot polos yang tebal dan jaringan ikat",
+      "Mukosa dilapisi oleh epitel transisional, pada luarnya dilapisi oleh otot polos yang tebal dan jaringan ikat",
+      "Mukosa dilapisi oleh epitel kolumnar berlapis semu yang memiliki stereocilia, pada luarnya dilapisi oleh otot skelet yang tebal dan jaringan ikat",
+      "Mukosa dilapisi oleh epitel berlapis kolumnar, pada luarnya dilapisi oleh otot polos yang tebal dan jaringan ikat"
+    ],
+    answer: 0,
+    explain: "Vas deferens (ductus deferens) secara histologis dilapisi epitel kolumnar berlapis semu (pseudostratified columnar) dengan STEREOCILIA (bukan cilia motil). Dindingnya memiliki lapisan otot polos yang tebal (tiga lapis: longitudinal-sirkular-longitudinal) — inilah yang membuatnya teraba sebagai tali keras. B Salah — bukan cilia motil. C Salah — bukan transisional. D Salah — otot polos, bukan skelet. E Salah — berlapis semu, bukan berlapis."  },
+  {
+    q: "31. Keluhan payudara yang paling sering dijumpai pada pasien-pasien yang datang ke klinik payudara adalah:",
+    options: [
+      "Benjolan pada payudara",
+      "Pembengkakan dan peradangan payudara",
+      "Nyeri payudara",
+      "Keluar cairan dari puting payudara",
+      "Distorsi payudara"
+    ],
+    answer: 0,
+    explain: "Berdasarkan data klinis dan literatur bedah payudara, keluhan TERBANYAK yang membawa pasien ke klinik payudara adalah BENJOLAN (breast lump/mass) — baik yang jinak (fibroadenoma, kista) maupun ganas. Nyeri payudara (mastalgia) juga umum tetapi sering tidak mendorong pasien untuk berkonsultasi ke spesialis. Nipple discharge, distorsi, dan peradangan lebih jarang."  },
+  {
+    q: "32. Pernyataan di bawah ini benar mengenai testis, kecuali:",
+    options: [
+      "Memproduksi spermatozoa yang sudah mature dan hormon yaitu testosteron",
+      "Sepanjang lateral surfacenya berhubungan dengan epididymis",
+      "Seluruh permukaan luarnya tertutup tunica vaginalis kecuali pada bagian posteriornya",
+      "Dilayani oleh testicular artery yaitu cabang internal iliac artery",
+      "Aliran limfenya menuju lumbar dan internal lymph nodes"
+    ],
+    answer: 3,
+    explain: "Testicular artery (a. testicularis) adalah cabang LANGSUNG dari AORTA ABDOMINALIS (bukan internal iliac artery) — setinggi L2, karena testis secara embriologis berasal dari retroperitoneum. Internal iliac menyuplai organ pelvis. Ini penting klinis: pada torsio testis, arteri yang terlibat dari aorta. A Salah (perlu dikoreksi): testis memproduksi spermatozoa yang IMATUR (pematangan terjadi di epididimis). C Benar. E Benar — aliran limfe ke para-aortic/lumbar nodes (sesuai asal embriologis)"  },
+  {
+    q: "33. Seorang pasien wanita usia 25 tahun, G1P0A0, usia kehamilan 7 bulan. TD 160/110 mmHg, letak sungsang, TFU 28 cm, DJJ 150x/menit, protein urine (+++), edema berat tungkai bawah. Apakah diagnosis yang memungkinkan?",
+    options: [
+      "Superimposed preeklampsia",
+      "Preeklampsia ringan",
+      "Hipertensi gestasional",
+      "Eklampsia",
+      "Preeklampsia berat"
+    ],
+    answer: 4,
+    explain: " Kriteria PREEKLAMPSIA BERAT: TD ≥160/110 mmHg (terpenuhi), proteinuria berat (+++), edema berat. Pasien primigravida, UK 28 minggu (prematur). Superimposed preeklampsia (A) = preeklampsia pada wanita dengan hipertensi kronis sebelumnya — tidak ada riwayat tersebut. Preeklampsia ringan (B) = TD 140-159/90-109 mmHg — tidak sesuai. Hipertensi gestasional (C) = tanpa proteinuria. Eklampsia (D) = sudah ada kejang — tidak disebutkan."},
+  {
+    q: "34. Manakah pernyataan di bawah ini yang benar tentang kelenjar prostat?",
+    options: [
+      "Parenkim berupa sel selapis kolumnar dengan stroma mengandung banyak sel otot polos yang melingkari uretra",
+      "Parenkim berupa sel selapis kolumnar dengan stroma mengandung banyak sel otot polos yang melingkari vas deferens",
+      "Parenkim berupa sel selapis kolumnar dengan stroma mengandung banyak sel otot skelet yang melingkari uretra",
+      "Parenkim berupa sel selapis pipih dengan stroma mengandung banyak sel otot polos yang melingkari uretra",
+      "Parenkim berupa sel selapis kolumnar dengan stroma mengandung banyak sel otot polos yang melingkari uretra pars spongiosa"
+    ],
+    answer: 0,
+    explain:"Prostat secara histologis: parenkim = kelenjar tubuloalveolar dengan epitel selapis kolumnar (atau berlapis semu); stroma = jaringan fibromuskular kaya sel otot POLOS (bukan skelet). Prostat mengelilingi URETRA PARS PROSTATICA (bukan spongiosa). B Salah — prostat tidak melingkari vas deferens. C Salah — otot polos, bukan skelet. D Salah — bukan selapis pipih. E Salah — uretra pars spongiosa ada di penis, bukan di prostat."  },
+  {
+    q: "35. Berapa lama waktu yang dibutuhkan sebelum amenore bisa menjadi tanda pasti atau bermakna kehamilan?",
+    options: [
+      "Kurang dari 3 hari setelah haid diharapkan",
+      "Antara 3 dan 5 hari setelah haid diharapkan",
+      "Antara 6 dan 9 hari setelah haid diharapkan",
+      "Lebih dari 10 hari setelah haid diharapkan",
+      "Lebih dari 2 minggu setelah haid diharapkan"
+    ],
+    answer: 4,
+    explain: "Amenore baru menjadi tanda presumtif kehamilan yang bermakna jika berlangsung >2 minggu dari tanggal haid yang diharapkan. Terlambat haid beberapa hari masih bisa karena variasi siklus, stres, dll. Baru setelah >14 hari (2 minggu), amenore memiliki nilai prediksi yang cukup untuk dicurigai kehamilan — dan sudah bisa dikonfirmasi dengan tes hCG."  },
+  {
+    q: "36. Bagaimana karakteristik perubahan anatomi pada payudara selama kehamilan pertama?",
+    options: [
+      "Perubahan payudara lebih menonjol pada kehamilan pertama dibandingkan dengan kehamilan berikutnya",
+      "Perubahan yang lebih kecil dibandingkan dengan kehamilan berikutnya",
+      "Tidak ada perubahan yang terjadi pada kehamilan pertama",
+      "Perubahan yang hanya terjadi pada kehamilan berikutnya",
+      "Perubahan yang bersifat sementara"
+    ],
+    answer: 0,
+    explain: "Pada kehamilan PERTAMA, payudara mengalami proliferasi dan diferensiasi lobulo-alveolar yang lebih dramatis karena jaringan kelenjar belum pernah berkembang sebelumnya. Perubahan ini lebih menonjol dibanding kehamilan berikutnya (pada kehamilan kedua dst, jaringan sudah pernah terdiferensiasi). Ini juga menjadi dasar mengapa menyusui pada kehamilan pertama lebih protektif terhadap kanker payudara."  },
+  {
+    q: "37. Saat periode ovulasi pada siklus 28 hari (ovulasi hari ke-14), pernyataan benar di bawah adalah:",
+    options: [
+      "Sekitar 2 hari sebelum ovulasi, tingkat sekresi LH oleh kelenjar hipofisis anterior meningkat secara signifikan, naik sebesar 6 hingga 10 kali lipat",
+      "Pada periode ini, sekresi estrogen dan progesteron yang terhenti secara tiba-tiba menyebabkan pelepasan ovum",
+      "FSH yang menurun menyebabkan swelling pada folikel selama beberapa hari sebelum ovulasi",
+      "Perubahan sel-sel granulosa dan theca interna menjadi folikel matur sangat tergantung dari LH yang disekresikan oleh kelenjar pituitary anterior",
+      "FSH mengakibatkan sekresi progesteron dan swelling lebih lanjut pada folikel serta menyebabkan degenerasi stigma yang diperlukan dalam proses ovulasi"
+    ],
+    answer: 0,
+    explain: "LH SURGE terjadi ~36-48 jam sebelum ovulasi — lonjakan LH yang dramatis (6-10x lipat) memicu: maturasi akhir oosit, ovulasi, dan luteinisasi. Ini adalah trigger langsung ovulasi. B Salah — ovulasi tidak dipicu oleh penurunan estrogen/progesteron (fase menstruasi yang dipicu itu). C Salah — sebelum ovulasi, FSH justru meningkat (bersama LH surge), dan FSH-lah yang bersama LH menyebabkan swelling folikel. D Salah — luteinisasi sel granulosa/theca oleh LH terjadi SETELAH ovulasi (fase luteal). E Salah — FSH tidak menyebabkan degenerasi stigma; stigma terbentuk akibat enzim proteolitik."  },
+  {
+    q: "38. Apa yang menjadi karakteristik partus postmaturus?",
+    options: [
+      "Bayi lahir sebelum 20 minggu usia kehamilan",
+      "Bayi lahir setelah 28 minggu usia kehamilan",
+      "Bayi lahir dengan berat badan lebih dari 4 kilogram",
+      "Bayi lahir setelah 42 minggu usia kehamilan",
+      "Bayi lahir dengan berat badan kurang dari 500 gram"
+    ],
+    answer: 3,
+    explain:" Partus postmaturus (kehamilan lewat waktu / post-term) = persalinan yang terjadi setelah usia kehamilan ≥42 minggu (294 hari dari HPHT). Istilah terkait: aterm = 37-41+6 minggu; preterm = <37 minggu; postterm/postmaturus = ≥42 minggu. Risiko: sindrom postmaturitas, mekonium aspirasi, insufisiensi plasenta."  },
+  {
+    q: "39. Semua pernyataan tentang lesser pelvis di bawah ini benar, kecuali:",
+    options: [
+      "Pada wanita adalah narrow, deep, dan tapering",
+      "Terletak antara pelvic inlet dan pelvic outlet",
+      "Dibentuk oleh hip bones, sacrum, dan coccyx",
+      "Merupakan true pelvic cavity dan deep part dari perineum terutama ischioanal fossae",
+      "Signifikan dalam pelayanan Obstetri dan Ginekologi"
+    ],
+    answer: 0,
+    explain: " Lesser pelvis (true pelvis/pelvic cavity) pada WANITA justru lebih LEBAR, lebih DANGKAL, dan berbentuk silindris (cylindrical) — adaptasi untuk persalinan. Pada PRIA yang narrower, deeper, dan tapering (lebih sempit, dalam, mengerucut). Jadi pernyataan A salah untuk mendeskripsikan pelvis wanita. Semua pilihan lain benar: B (lokasi benar), C (dibentuk oleh hip bones, sacrum, coccyx benar), D (true pelvis benar), E (klinisnya signifikan benar)."},
+  {
+    q: "40. Seorang wanita usia 23 tahun mengalami perdarahan pervaginam merah kehitaman, tidak nyeri, HPHT 6 minggu lalu, perdarahan sejak 5 hari lalu setelah koitus. VT menunjukkan bercak darah di OUE, tidak ada jaringan, uterus menutup. Diagnosis yang mungkin?",
+    options: ["Abortus imminens", "Kehamilan ektopik", "Abortus inkomplet", "Missed abortion", "Abortus insipiens"],
+    answer: 0,
+    explain: "ABORTUS IMMINENS: perdarahan pervaginam trimester I, tanpa jaringan keluar, OUE TERTUTUP, tidak ada nyeri hebat, janin masih hidup (ancaman keguguran). Sesuai: HPHT 6 minggu (UK ±6 mgg), perdarahan merah kehitaman post-koitus, OUE tertutup, tidak ada jaringan. Abortus inkomplet (C) = OUE terbuka + ada jaringan keluar. Abortus insipiens (E) = OUE terbuka + kontraksi nyeri. Missed abortion (D) = janin mati tapi belum keluar, tanpa perdarahan/nyeri. Kehamilan ektopik (B) biasanya disertai nyeri."  },
+  {
+    q: "41. Berapa rentang usia kehamilan pada partus immaturus?",
+    options: ["20-24 minggu", "24-28 minggu", "28-32 minggu", "32-36 minggu", "36-40 minggu"],
+    answer: 1,
+    explain: " Klasifikasi berdasarkan usia kehamilan: Abortus = <20 minggu; Partus immaturus = 20-28 minggu (ada variasi literatur: beberapa menyebut 20-24 minggu); Partus prematurus = 28-37 minggu; Aterm = 37-42 minggu; Postmatur = >42 minggu. Berdasarkan klasifikasi FK UNUD/Indonesia umumnya: immaturus = 20-28 minggu, namun beberapa sumber spesifik menyebut 20-24 minggu (A). Jawaban B (24-28) lebih sering merujuk ke 'very preterm'. Cek referensi kuliah yang digunakan."}
+    ];
+
+    let current = 0;
+    let currentOptions = [];
+    let score = 0;
+    let answered = false;
+    let timeLeft = 100 * 60;
+    let timerInterval = null;
+
+    const homeEl = document.getElementById("home");
+    const quizEl = document.getElementById("quizContainer");
+    const metaEl = document.getElementById("meta");
+    const scoreInfoEl = document.getElementById("scoreInfo");
+    const timerInfoEl = document.getElementById("timerInfo");
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const explainEl = document.getElementById("explain");
+    const startBtn = document.getElementById("startBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const backBtn = document.getElementById("backBtn");
+
+    const userAnswers = Array(questions.length).fill(null);
+
+    startBtn.addEventListener("click", startQuiz);
+    nextBtn.addEventListener("click", nextQuestion);
+    backBtn.addEventListener("click", prevQuestion);
+
+    function startQuiz() {
+      homeEl.style.display = "none";
+      quizEl.style.display = "block";
+      current = 0;
+      score = 0;
+      answered = false;
+      timeLeft = 100 * 60;
+      userAnswers.fill(null);
+      startTimer();
+      loadQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          finishQuiz();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+      const seconds = String(timeLeft % 60).padStart(2, "0");
+      timerInfoEl.innerText = "Timer: " + minutes + ":" + seconds;
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function recalculateScore() {
+      score = userAnswers.reduce((total, answer, index) => {
+        return total + (answer === questions[index].answer ? 1 : 0);
+      }, 0);
+
+      scoreInfoEl.innerText = "Score: " + score;
+    }
+
+    function loadQuestion() {
+      answered = userAnswers[current] !== null;
+      explainEl.style.display = "none";
+      explainEl.innerText = "";
+
+      const q = questions[current];
+      metaEl.innerText = "Soal " + (current + 1) + " / " + questions.length;
+      questionEl.innerText = q.q;
+
+      currentOptions = q.options.map((opt, i) => ({
+        text: opt,
+        isCorrect: i === q.answer,
+        originalIndex: i
+      }));
+
+      shuffleArray(currentOptions);
+
+      optionsEl.innerHTML = currentOptions.map((opt, i) => `
+        <label>
+          <input type="radio" name="opt" data-index="${i}">
+          ${String.fromCharCode(65 + i)}. ${opt.text}
+        </label>
+      `).join("");
+
+      const radios = optionsEl.querySelectorAll('input[name="opt"]');
+      const labels = optionsEl.querySelectorAll("label");
+      const savedAnswer = userAnswers[current];
+
+      radios.forEach((radio) => {
+        radio.addEventListener("change", function () {
+          check(parseInt(this.dataset.index, 10));
+        });
+      });
+
+      if (savedAnswer !== null) {
+        const selectedIndex = currentOptions.findIndex(
+          (opt) => opt.originalIndex === savedAnswer
+        );
+
+        if (selectedIndex !== -1) {
+          radios[selectedIndex].checked = true;
+
+          labels.forEach((label, index) => {
+            const input = label.querySelector("input");
+            input.disabled = true;
+
+            if (currentOptions[index].isCorrect) {
+              label.classList.add("correct");
+            }
+
+            if (index === selectedIndex && !currentOptions[index].isCorrect) {
+              label.classList.add("wrong");
+            }
+          });
+
+          explainEl.style.display = "block";
+          explainEl.innerText = "Penjelasan: " + questions[current].explain;
+        }
+      }
+
+      backBtn.disabled = current === 0;
+      backBtn.style.opacity = current === 0 ? "0.6" : "1";
+
+      recalculateScore();
+    }
+
+    function check(i) {
+      const labels = optionsEl.querySelectorAll("label");
+      const chosenOriginalIndex = currentOptions[i].originalIndex;
+
+      const previousAnswer = userAnswers[current];
+      userAnswers[current] = chosenOriginalIndex;
+      answered = true;
+
+      labels.forEach((label) => {
+        label.classList.remove("correct", "wrong");
+      });
+
+      labels.forEach((label, index) => {
+        const input = label.querySelector("input");
+        input.disabled = true;
+
+        if (currentOptions[index].isCorrect) {
+          label.classList.add("correct");
+        }
+
+        if (index === i && !currentOptions[index].isCorrect) {
+          label.classList.add("wrong");
+        }
+      });
+
+      if (previousAnswer === null || previousAnswer !== chosenOriginalIndex) {
+        recalculateScore();
+      }
+
+      explainEl.style.display = "block";
+      explainEl.innerText = "Penjelasan: " + questions[current].explain;
+    }
+
+    function prevQuestion() {
+      if (current > 0) {
+        current--;
+        loadQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (!answered) return;
+
+      current++;
+
+      if (current < questions.length) {
+        loadQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      clearInterval(timerInterval);
+      recalculateScore();
+
+      document.body.innerHTML = `
+        <div class="container result">
+          <div class="result-box">
+            <div class="badge">Quiz Selesai</div>
+            <h2>Hasil Akhir</h2>
+            <div class="score-number">${score}/${questions.length}</div>
+            <p>Semoga CBT juga lancar ya! Exc33ding A!</p>
+            <button class="restart-btn" type="button" onclick="location.reload()">Restart</button>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
